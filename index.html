@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --secondary: #5a54d1;
+      --bg: #f5f7fb;
+      --card-bg: #fff;
+      --text-dark: #2a2a2a;
+      --text-light: #666;
+      --footer-bg: #fff;
+      --border: #eee;
+      --success: #28c76f;
+      --danger: #ff4d4f;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      margin: 0;
+    }
+
+    .header { display:flex;justify-content:space-between;align-items:center;padding:20px; }
+    .header-left { display:flex;align-items:center;gap:10px; }
+    .header-left img { width:42px;height:42px;border-radius:50%;border:2px solid var(--primary); }
+    .username { font-weight:600;font-size:16px; }
+    .status { color:var(--primary);font-size:13px;font-family:'Inter',sans-serif; }
+    .bell { font-size:20px;color:var(--text-dark);background:var(--card-bg);border-radius:50%;padding:8px;box-shadow:0 4px 8px rgba(0,0,0,0.08); }
+
+    .balance-card { background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border-radius:20px;margin:10px 20px;padding:25px;text-align:center;box-shadow:0 8px 20px rgba(108,99,255,0.3);}
+    .balance-card .title { font-size:14px;opacity:0.9; }
+    .balance-card .amount { font-size:32px;font-weight:700;margin:15px 0; }
+    .balance-card button { background:white;color:var(--primary);border:none;border-radius:30px;padding:12px 30px;font-weight:600;font-size:14px; }
+
+    .actions { margin:25px 20px; }
+    .action-card { display:flex;align-items:center;background:var(--card-bg);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 6px 18px rgba(0,0,0,0.06);transition:0.3s; }
+    .action-card:hover { transform:translateY(-3px); }
+    .action-card i { font-size:32px;margin-right:18px;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+    .action-card h3 { margin:0;font-size:16px;font-weight:600; }
+    .action-card p { margin:4px 0 0;font-size:13px;color:var(--text-light);font-family:'Inter',sans-serif; }
+
+    .footer { position:fixed;bottom:0;left:0;right:0;background:var(--footer-bg);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:12px 0; }
+    .footer i { font-size:22px;color:var(--text-light); }
+    .footer i.active { background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+
+    .overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:900;display:none; }
+    .modal { position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:25px;border-top-right-radius:25px;box-shadow:0 -6px 20px rgba(0,0,0,0.2);padding:25px 20px;z-index:1000;display:none;animation:slideUp 0.4s ease; }
+    @keyframes slideUp { from{transform:translateY(100%);}to{transform:translateY(0);} }
+
+    .modal-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:15px; }
+    .modal-header h2 { margin:0;font-size:20px;font-weight:600; }
+    .close-btn { font-size:22px;color:var(--text-light); }
+
+    .modal input,.modal select { width:90%;padding:14px;margin-bottom:15px;border-radius:12px;border:1px solid #ddd;font-size:15px;font-family: 'Poppins', sans-serif; }
+    .modal input:focus,.modal select:focus { border:1px solid var(--primary);box-shadow:0 0 8px rgba(108,99,255,0.3);outline:none; }
+
+    select { appearance:none;background:#fff url('https://cdn-icons-png.flaticon.com/512/32/32195.png') no-repeat right 12px center;background-size:14px;padding-right:35px; }
+
+    .modal button { background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border:none;border-radius:25px;padding:14px;font-weight:600;width:100%;font-size:15px;position:relative; }
+
+    .loader { display:none;justify-content:center;align-items:center;gap:6px;height:20px; }
+    .loader div { width:6px;height:6px;background:white;border-radius:50%;animation:bounce 0.6s infinite alternate; }
+    .loader div:nth-child(2){animation-delay:0.2s;} .loader div:nth-child(3){animation-delay:0.4s;}
+    @keyframes bounce { from{transform:translateY(0);}to{transform:translateY(-6px);} }
+
+    .step { display:none; }
+    .detail-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:15px; }
+    .detail-label { font-weight:500;color:var(--text-light); }
+    .detail-value { font-weight:600;color:var(--text-dark); }
+    .detail-value.name { color:var(--primary); }
+
+    .copy-wrap { display:flex;align-items:center;gap:6px; }
+    .copy-btn { border:none;padding:4px 10px;border-radius:6px;font-size:13px; }
+
+    .toast { position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#5E6362;color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;opacity:0;transition:all 0.4s ease;z-index:2000; }
+    .toast.show { bottom:80px;opacity:1; }
+
+    .not-confirmed { text-align:center; }
+    .not-confirmed img { width:100px;margin:20px auto; }
+    .not-confirmed h3 { color:var(--danger);font-weight:700;margin:10px 0; }
+    .back-btn { background:#eee;color:var(--text-dark);margin-top:15px; }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="modal" id="loginModal">
+    <div class="modal-header">
+      <h2>Welcome 👋</h2>
+    </div>
+    <p style="font-size:11px; font-weight: bold; color: #5E6362;">Sign in to proceed.</p> 
+    <br />
+    <input type="text" id="nameInput" placeholder="Enter your name" required>
+    <input type="email" id="emailInput" placeholder="Enter your email" required>
+    <button id="proceedBtn">Proceed</button>
+  </div>
+
+  <div class="modal" id="withdrawModal">
+    <div class="modal-header">
+      <h2>Withdraw Funds 💸</h2>
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+    </div>
+    <div class="step" id="step1">
+      <p style="font-size:11px; font-weight: bold; color: #5E6362;">Enter details you will be withdrawing your balance to.</p>
+      <input type="text" id="wName" placeholder="Enter Account name" required>
+      <input type="tel" id="wNumber" placeholder="Enter Account number" required>
+      <select id="wBank" required style="width: 98%;">
+        <option value="" disabled selected>Select Bank</option>
+        <option>Access Bank</option>
+        <option>First Bank</option>
+        <option>GTBank</option>
+        <option>Moniepoint</option>
+        <option>MOMO</option>
+        <option>OPay</option>
+        <option>PalmPay</option>
+        <option>Kuda Bank</option>
+        <option>Paga</option>
+        <option>Polaris Bank</option>
+        <option>UBA</option>
+        <option>SmartCash</option>
+        <option>Zenith Bank</option>
+      </select>
+      <input type="number" id="wAmount" placeholder="Enter amount" required>
+      <button id="withdrawProceed">
+        <span class="btn-text">Proceed</span>
+        <div class="loader"><div></div><div></div><div></div></div>
+      </button>
+    </div>
+    <div class="step" id="step2">
+      <p style="font-size:11px; font-weight: bold; color: #5E6362;">Make payments to the account below to proceed with this withdrawal.</p>
+      <div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value name" id="cName">DARK WEBSITE</span></div>
+      <div class="detail-row"><span class="detail-label">Account:</span>
+        <div class="copy-wrap"><span class="detail-value" id="cAccount">7059405760</span><button class="copy-btn" onclick="copyText('cAccount')" style="background: none; color:var(--primary);"><i class="fa fa-copy"></i></button></div>
+      </div>
+      <div class="detail-row"><span class="detail-label">Amount:</span><span class="detail-value" id="cAmount">₦ 2,500</span></div>
+      <div class="detail-row"><span class="detail-label">Bank:</span><span class="detail-value" id="cFile">PalmPay</span></div>
+      <button id="confirmProceed" style="margin-top: 40px;">
+        <span class="btn-text">Proceed</span>
+        <div class="loader"><div></div><div></div><div></div></div>
+      </button>
+    </div>
+    <div class="step" id="step3">
+      <div class="not-confirmed">
+        <img src="https://cdn-icons-png.flaticon.com/512/463/463612.png" alt="Not Confirmed" style="width: 50px; height: 50px;">
+        <h3 style="font-size: 18px;">Not Confirmed</h3>
+      <p style="font-size:11px; font-weight: bold; color: #5E6362;">Payment wasnt confirmed, go back and complete your payments for a successfull withdraw.</p>
+  <button class="back-btn" onclick="goBack()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied to clipboard ✅</div>
+
+  <div class="header">
+    <div class="header-left">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+      <div>
+        <div class="username" id="displayName">@Guest</div>
+        <div class="status">Fresher</div>
+      </div>
+    </div>
+    <i class="fa-regular fa-bell bell"></i>
+  </div>
+
+  <div class="balance-card">
+    <div class="title">Available Balance</div>
+    <div class="amount" id="balance">₦ 0.00</div>
+    <button id="withdrawBtn"><i class="fa-solid fa-paper-plane"></i> Withdraw</button>
+  </div>
+
+  <div class="actions">
+    <div class="action-card"><i class="fa-solid fa-gift"></i><div><h3>Sell Gift </h3><p>Make money → 🎄🎄🎄</p></div></div>
+    <div class="action-card"><i class="fa-solid fa-star"></i><div><h3>Top Account</h3><p>Upgrade with High Rates</p></div></div>
+  </div>
+
+  <div class="footer">
+    <i class="fa-solid fa-house active"></i><i class="fa-solid fa-wallet"></i>
+    <a href="https://t.me/dark_t3ch"><i class="fa-solid fa-user"></i></a>
+  </div>
+
+  <script>
+    const overlay = document.getElementById("overlay");
+    const loginModal = document.getElementById("loginModal");
+    const proceedBtn = document.getElementById("proceedBtn");
+    const nameInput = document.getElementById("nameInput");
+    const emailInput = document.getElementById("emailInput");
+    const displayName = document.getElementById("displayName");
+    const balance = document.getElementById("balance");
+
+    const withdrawBtn = document.getElementById("withdrawBtn");
+    const withdrawModal = document.getElementById("withdrawModal");
+    const withdrawProceed = document.getElementById("withdrawProceed");
+    const confirmProceed = document.getElementById("confirmProceed");
+
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const step3 = document.getElementById("step3");
+
+    const toast = document.getElementById("toast");
+    const currentBalance = 139210.35;
+
+    window.onload = () => {
+      const savedName = localStorage.getItem("username");
+      const savedEmail = localStorage.getItem("email");
+      if (savedName && savedEmail) {
+        displayName.textContent = savedName;
+        balance.textContent = "₦ " + currentBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+      } else {
+        loginModal.style.display = "block";
+        overlay.style.display = "block";
+        balance.textContent = "₦ 0.00";
+      }
+    };
+
+    proceedBtn.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      if (name && email) {
+        localStorage.setItem("username", name);
+        localStorage.setItem("email", email);
+        displayName.textContent = name;
+        loginModal.style.display = "none";
+        overlay.style.display = "none";
+        balance.textContent = "₦ " + currentBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+      } else alert("Please enter both name and email!");
+    });
+
+    withdrawBtn.addEventListener("click", () => {
+      withdrawModal.style.display = "block";
+      overlay.style.display = "block";
+      showStep(1);
+    });
+
+    function closeModal(){ withdrawModal.style.display="none"; overlay.style.display="none"; }
+    function showStep(n){ [step1,step2,step3].forEach(s=>s.style.display="none"); document.getElementById("step"+n).style.display="block"; }
+
+    withdrawProceed.addEventListener("click", () => {
+      const name = document.getElementById("wName").value.trim();
+      const number = document.getElementById("wNumber").value.trim();
+      const bank = document.getElementById("wBank").value;
+      const amount = parseFloat(document.getElementById("wAmount").value);
+
+      if (!name || !number || !bank || !amount) {
+        showToast("⚠️ Please fill in all fields!");
+        return;
+      }
+
+      if (amount > currentBalance) {
+        showToast("❌ Amount exceeds available balance!");
+        return;
+      }
+
+      const btnText=withdrawProceed.querySelector(".btn-text");
+      const loader=withdrawProceed.querySelector(".loader");
+      btnText.style.display="none";loader.style.display="flex";
+
+      setTimeout(()=>{
+        loader.style.display="none";btnText.style.display="block";
+        document.getElementById("cName").textContent = "DARK WEBSITE";
+        document.getElementById("cAccount").textContent = "7059405760";
+        document.getElementById("cAmount").textContent = "₦ 2,500";
+        document.getElementById("cFile").textContent = "DARK WEBSITE";
+        showStep(2);
+      },2000);
+    });
+
+    confirmProceed.addEventListener("click", ()=>{
+      const btnText=confirmProceed.querySelector(".btn-text");
+      const loader=confirmProceed.querySelector(".loader");
+      btnText.style.display="none";loader.style.display="flex";
+      setTimeout(()=>{ loader.style.display="none";btnText.style.display="block";showStep(3); },15000);
+    });
+
+    function goBack(){ showStep(2); }
+
+    function copyText(id){
+      const text=document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(()=>{ showToast("Copied to clipboard ✅"); });
+    }
+
+    function showToast(message){
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"),2500);
+    }
+  </script>
+</body>
+</html>
